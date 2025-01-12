@@ -1,4 +1,4 @@
-Purpose Agent Bot is an AI-assisted bot that leverages OpenAI to offer concise, empathetic coaching responses for users exploring their life purpose in a rapidly changing world. It listens for the !purpose command, sends a structured query to OpenAI (e.g., GPT-4o), and returns a tailored coaching message within a Discord server channel.
+Purpose Agent Bot is an AI-assisted Discord bot that leverages OpenAI to offer concise, empathetic coaching responses for users exploring their life purpose in a post fiat world. It listens for the !purpose command, sends a structured query to OpenAI (e.g., GPT-4o), and returns a tailored coaching message within a Discord server channel.
 
 To configure the bot, place your Discord Bot Token, OpenAI API Key, and any custom system prompt text in a .env file. An example layout can be found in env.example, which outlines the variables needed to run the bot without exposing sensitive credentials in source control. The bot uses python-dotenv to load these variables at runtime.
 
