@@ -154,8 +154,14 @@ async def update_uptime():
 
 async def metrics_handler(request):
     """Handles the /metrics endpoint for Prometheus scraping."""
-    data = generate_latest()
-    return web.Response(body=data, content_type=CONTENT_TYPE_LATEST)
+    try:
+        logging.info(f"Received request for /metrics from {request.remote}")
+        data = generate_latest()
+        logging.info("Successfully generated metrics data.")
+        return web.Response(body=data, content_type='text/plain; version=0.0.4')
+    except Exception as e:
+        logging.exception(f"Error generating metrics: {e}")
+        return web.Response(status=500, text="Internal Server Error")
 
 async def init_app():
     """Initializes the aiohttp web application."""
