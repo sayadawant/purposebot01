@@ -125,7 +125,7 @@ async def purpose(ctx, *, user_message: str = ""):
         logging.info(f'Purpose command used by {ctx.author}: {user_message} -> {bot_response}')
         await ctx.send(bot_response)
 
-   except openai.error.OpenAIError as e:
+    except openai.error.OpenAIError as e:
         OPENAI_API_ERRORS.inc()
         logging.exception(f"OpenAI API error: {e}")
         await ctx.send("Sorry, I encountered an issue while processing your request.")
