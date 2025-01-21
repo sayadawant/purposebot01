@@ -31,6 +31,7 @@ load_dotenv()
 DISCORD_BOT_TOKEN = os.getenv("DISCORD_BOT_TOKEN")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 SYSTEM_PROMPT = os.getenv("SYSTEM_PROMPT_TEXT")
+MOAR_PROMPT = os.getenv("MOAR_PROMPT_TEXT")
 PORT = int(os.getenv('PORT', 8000))  # Railway typically sets PORT
 
 # Validate essential environment variables
@@ -42,6 +43,9 @@ if not OPENAI_API_KEY:
     exit(1)
 if not SYSTEM_PROMPT:
     logging.error("SYSTEM_PROMPT_TEXT environment variable not set.")
+    exit(1)
+if not MOAR_PROMPT:
+    logging.error("MOAR_PROMPT environment variable not set.")
     exit(1)
 
 openai.api_key = OPENAI_API_KEY
@@ -147,7 +151,7 @@ async def moar(ctx, *, user_message: str = ""):
         completion = openai.chat.completions.create(
             model="gpt-4",
             messages=[
-                {"role": "system", "content": MOAR_SYSTEM_PROMPT},
+                {"role": "system", "content": MOAR_PROMPT},
                 {"role": "user", "content": user_message}
             ],
            max_tokens=700,
