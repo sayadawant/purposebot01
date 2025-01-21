@@ -53,6 +53,9 @@ openai.api_key = OPENAI_API_KEY
 REQUEST_LATENCY = Summary('response_latency_seconds', 'Response latency of the bot')
 UPTIME_MINUTES = Gauge('bot_uptime_minutes', 'Bot uptime in minutes')
 USER_INTERACTIONS = Counter('user_interactions_total', 'Total number of user interactions')
+OPENAI_API_ERRORS = Counter('openai_api_errors_total', 'Total number of OpenAI API errors')
+COMMAND_ERRORS = Counter('command_errors_total', 'Total number of command execution errors')
+GENERAL_EXCEPTIONS = Counter('general_exceptions_total', 'Total number of unexpected exceptions')
 
 # ==========================
 # Discord Bot Setup
@@ -122,9 +125,16 @@ async def purpose(ctx, *, user_message: str = ""):
         logging.info(f'Purpose command used by {ctx.author}: {user_message} -> {bot_response}')
         await ctx.send(bot_response)
 
+   except openai.error.OpenAIError as e:
+        OPENAI_API_ERRORS.inc()
+        logging.exception(f"OpenAI API error: {e}")
+        await ctx.send("Sorry, I encountered an issue while processing your request.")
+    
     except Exception as e:
-        logging.exception(f"OpenAI error: {e}")
-        await ctx.send("Sorry, I had trouble generating a response. Please try again later.")
+        GENERAL_EXCEPTIONS.inc()
+        logging.exception(f"Unexpected error: {e}")
+        await ctx.send("An unexpected error occurred. Please try again later.")
+
 
 # ==========================
 # Event Handlers
@@ -136,6 +146,13 @@ async def on_ready():
     logging.info('------')
     # Start background task to update uptime
     bot.loop.create_task(update_uptime())
+
+@bot.event
+async def on_command_error(ctx, error):
+    GENERAL_EXCEPTIONS.inc()
+    logging.exception(f"Unhandled command error: {error}")
+    await ctx.send("An error occurred while processing the command.")
+
 
 # ==========================
 # Uptime Tracking
