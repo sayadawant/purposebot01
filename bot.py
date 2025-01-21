@@ -51,7 +51,7 @@ openai.api_key = OPENAI_API_KEY
 # ==========================
 
 REQUEST_LATENCY = Summary('response_latency_seconds', 'Response latency of the bot')
-UPTIME_SECONDS = Gauge('bot_uptime_seconds', 'Bot uptime in seconds')
+UPTIME_MINUTES = Gauge('bot_uptime_minutes', 'Bot uptime in minutes')
 USER_INTERACTIONS = Counter('user_interactions_total', 'Total number of user interactions')
 
 # ==========================
@@ -145,7 +145,8 @@ async def update_uptime():
     """Background task to set uptime metric every minute."""
     while True:
         elapsed_time = time.time() - start_time
-        UPTIME_SECONDS.set(elapsed_time)
+        uptime_minutes = elapsed_time / 60  # 
+        UPTIME_MINUTES.set(uptime_minutes)
         await asyncio.sleep(60)
 
 # ==========================
