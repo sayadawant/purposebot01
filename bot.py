@@ -113,7 +113,7 @@ async def purpose(ctx, *, user_message: str = ""):
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": user_message}
             ],
-            max_tokens=350,
+            max_tokens=700,
             temperature=0.8,
             top_p=1.0,
             presence_penalty=0.2,
@@ -135,6 +135,44 @@ async def purpose(ctx, *, user_message: str = ""):
         logging.exception(f"Unexpected error: {e}")
         await ctx.send("An unexpected error occurred. Please try again later.")
 
+@bot.command()
+@prometheus_latency_metric(REQUEST_LATENCY)
+async def moar(ctx, *, user_message: str = ""):
+    """Defines !moar command setting financial goals, tracking metrics."""
+    if not user_message:
+        await ctx.send("Please provide additional context or questions, for example: `!moar Please help me set financial targets for post-AGI future`")
+        return
+    
+    try:
+        completion = openai.chat.completions.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": MOAR_SYSTEM_PROMPT},
+                {"role": "user", "content": user_message}
+            ],
+           max_tokens=700,
+            temperature=0.8,
+            top_p=1.0,
+            presence_penalty=0.2,
+            frequency_penalty=0.1
+        )
+
+        bot_response = completion.choices[0].message.content.strip()
+        USER_INTERACTIONS.inc()
+        logging.info(f'Moar command used by {ctx.author}: {user_message} -> {bot_response}')
+        await ctx.send(bot_response)
+
+    except openai.error.OpenAIError as e:
+        OPENAI_API_ERRORS.inc()
+        MOAR_COMMAND_ERRORS.inc()
+        logging.exception(f"OpenAI API error in !moar command: {e}")
+        await ctx.send("Sorry, I encountered an issue while processing your request with the !moar command.")
+
+    except Exception as e:
+        GENERAL_EXCEPTIONS.inc()
+        MOAR_COMMAND_ERRORS.inc()
+        logging.exception(f"Unexpected error in !moar command: {e}")
+        await ctx.send("An unexpected error occurred while executing the !moar command. Please try again later.")
 
 # ==========================
 # Event Handlers
